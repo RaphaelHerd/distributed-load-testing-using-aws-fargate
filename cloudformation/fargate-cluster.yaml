@@ -53,12 +53,50 @@ Resources:
     Type: AWS::Logs::MetricFilter
     Properties:
       FilterPattern: "[time, logType=INFO*, logTitle=Current*, numVu, vu, numSucc, succ, numFail, fail, avgRt, x]"
+     # FilterPattern: "[time, logType=INFO*, logTitle=Current*, numVu, vu, numSucc, succ, numFail, fail, avgRt, avg, rt, Cumulative, numCumulative, avg2, rt2, percFailure, x]"
       LogGroupName: !Ref FargateTaskCloudWatchLogGroup
       MetricTransformations:
-        -
-          MetricValue: "$avgRt"
+        - MetricValue: "$avgRt"
           MetricNamespace: "dlt-fargate/taurus"
           MetricName: "avgResponseTime"
+        # - MetricValue: "$numFail"
+        #   MetricNamespace: "dlt-fargate/taurus"
+        #   MetricName: "failures"
+        # - MetricValue: "$percFailure"
+        #   MetricNamespace: "dlt-fargate/taurus"
+        #   MetricName: "percentageFailure"
+        # - MetricValue: "$numSucc"
+        #   MetricNamespace: "dlt-fargate/taurus"
+        #   MetricName: "successful"
+
+  TaurusLogFilterAverageFailures:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: "[time, logType=INFO*, logTitle=Current*, numVu, vu, numSucc, succ, numFail, fail, avgRt, avg, rt, Cumulative, numCumulative, avg2, rt2, percFailure, x]"
+      LogGroupName: !Ref FargateTaskCloudWatchLogGroup
+      MetricTransformations:
+        - MetricValue: "$percFailure"
+          MetricNamespace: "dlt-fargate/taurus"
+          MetricName: "failurePercentage"
+
+  TaurusLogFilterFailures:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: "[time, logType=INFO*, logTitle=Current*, numVu, vu, numSucc, succ, numFail, fail, avgRt, x]"
+      LogGroupName: !Ref FargateTaskCloudWatchLogGroup
+      MetricTransformations:
+        - MetricValue: "$numFail"
+          MetricNamespace: "dlt-fargate/taurus"
+          MetricName: "failures"
+  TaurusLogFilterFailures:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: "[time, logType=INFO*, logTitle=Current*, numVu, vu, numSucc, succ, numFail, fail, avgRt, x]"
+      LogGroupName: !Ref FargateTaskCloudWatchLogGroup
+      MetricTransformations:
+        - MetricValue: "$numSucc"
+          MetricNamespace: "dlt-fargate/taurus"
+          MetricName: "successful"
 
   FargateTaskDefinition:
     Type: AWS::ECS::TaskDefinition

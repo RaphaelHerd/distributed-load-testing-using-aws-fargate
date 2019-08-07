@@ -22,7 +22,12 @@ Parameters:
   GitRepositoryName:
     Type: String
     Default: "distributed-load-testing-using-aws-fargate"
-
+  QSS3BucketName:
+    Default: "load-test-us-east-1-public-cloudformation-templates"
+    Type: String
+  QSS3KeyPrefix:
+    Default: saas-identity-cognito/
+    Type: String
 Resources:
   DockerRegistry:
     Type: AWS::ECR::Repository
@@ -48,13 +53,13 @@ Resources:
   Vpc:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: "https://s3.amazonaws.com/distributed-load-testing-using-aws-fargate/templates/fargate-vpc.yaml"
+      TemplateURL: !Sub https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/fargate-vpc.yaml
 
   FargateCluster:
     Type: AWS::CloudFormation::Stack
     DependsOn: Vpc
     Properties:
-      TemplateURL: "https://s3.amazonaws.com/distributed-load-testing-using-aws-fargate/templates/fargate-cluster.yaml"
+      TemplateURL: !Sub https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/fargate-cluster.yaml
       Parameters:
         VpcId: !GetAtt Vpc.Outputs.VpcId
         TaskExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
@@ -71,7 +76,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: Vpc
     Properties:
-      TemplateURL: "https://s3.amazonaws.com/distributed-load-testing-using-aws-fargate/templates/pipeline.yaml"
+      TemplateURL: !Sub https://${QSS3BucketName}.s3.amazonaws.com/${QSS3KeyPrefix}templates/pipeline.yaml
       Parameters:
         DockerRegistryArn: !GetAtt DockerRegistry.Arn
         MasterStackId: !Ref 'AWS::StackName'
